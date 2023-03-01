@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config DRM_GXMICRO
+	tristate "DRM Support for GXMicro Display Controller"
+	depends on DRM && PCI && MMU
+	select DRM_KMS_HELPER
+	select DRM_VRAM_HELPER
+	help
+	 DRM driver for GXMicro Qogir.
+	 If M is selected the module will be called gxmicro_drm.
+

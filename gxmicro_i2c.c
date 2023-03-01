@@ -9,7 +9,7 @@
  */
 #include "gxmicro_dc.h"
 
-/* DisplayController 使用 gpio 模拟 i2c 控制 encoder 读取 edid 信息 */
+/* Display Controller 使用 gpio 模拟 i2c 控制 encoder 读取 edid 信息 */
 #define GPIOA_94		30		/* gpio94 号引脚 */
 #define GPIOA_95		31		/* gpio95 号引脚 */
 
@@ -77,7 +77,7 @@ int gxmicro_i2c_init(struct gxmicro_dc_dev *gdev)
 	adap->dev.parent = &gdev->pdev->dev;
 	adap->algo_data = algo;
 	i2c_set_adapdata(&gdev->adap, gdev);
-	snprintf(gdev->adap.name, sizeof(gdev->adap.name), "Qogir i2c bit bus");
+	snprintf(gdev->adap.name, sizeof(gdev->adap.name), "GXMicro i2c bit bus");
 
 	algo->data = gdev;
 	algo->setsda = gxmicro_setsda;

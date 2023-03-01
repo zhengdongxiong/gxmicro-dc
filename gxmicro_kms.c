@@ -30,14 +30,14 @@
 #define CURRENT_HEIGHT		480
 #endif
 
-/* ============================== DRM Priv ============================== */
+/* ****************************** DRM Priv ****************************** */
 
 static inline void *drm_get_priv(struct drm_device *dev)
 {
 	return dev->dev_private;
 }
 
-/* ============================== DRM Mode Config ============================== */
+/* ****************************** DRM Mode Config ****************************** */
 
 static const struct drm_mode_config_funcs gxmicro_mode_congfig_funcs = {
 	.fb_create = drm_gem_fb_create,
@@ -62,7 +62,7 @@ static inline void gxmicro_setup_mode_config(struct gxmicro_dc_dev *gdev)
 	dev->mode_config.funcs			= &gxmicro_mode_congfig_funcs;
 }
 
-/* ============================== Primary Plane ============================== */
+/* ****************************** Primary Plane ****************************** */
 
 static const uint32_t gxmicro_primary_plane_formats[] = {
 	DRM_FORMAT_ARGB8888,
@@ -106,7 +106,7 @@ static int gxmicro_primary_plane_init(struct gxmicro_dc_dev *gdev)
 	return 0;
 }
 
-/* ============================== Cursor Plane ============================== */
+/* ****************************** Cursor Plane ****************************** */
 
 static inline int gxmicro_cursor_prepare_fb(struct drm_framebuffer *fb)
 {
@@ -126,6 +126,7 @@ static inline void gxmicro_cursor_cleanup_fb(struct drm_framebuffer *fb)
 	drm_gem_vram_unpin(gbo);
 }
 
+#if 0
 #ifdef CONFIG_SW64
 static inline void gxmicro_cursor_copy(uint32_t *dst, uint32_t *src)
 {
@@ -133,6 +134,7 @@ static inline void gxmicro_cursor_copy(uint32_t *dst, uint32_t *src)
 	for (i = 0; i < CURSOR_WIDTH * CURSOR_HEIGHT; i++)	/* step: 4Bytes */
 		writel(src[i], dst + i);
 }
+#endif
 #endif
 
 static int gxmicro_cursor_update(struct gxmicro_dc_dev *gdev, struct drm_framebuffer *fb)
@@ -164,12 +166,16 @@ static int gxmicro_cursor_update(struct gxmicro_dc_dev *gdev, struct drm_framebu
 		pci_err(gdev->pdev, "Failed to get Cursor address\n");
 		goto out_gxmicro_cursor_kmap;
 	}
-
+#if 0
 #ifdef CONFIG_SW64
+	memcpy_io();
 	gxmicro_cursor_copy(dst, src);	/* sw64 memcpy 报错?? */
 #else
 	memcpy(dst, src, CURSOR_SIZE);
 #endif
+#endif
+	memcpy(dst, src, CURSOR_SIZE);
+
 	gxmicro_write(gdev, DC_CURSOR_ADDR, cur_addr);
 
 	pci_dbg(gdev->pdev, "Cursor width * height: 0x%08x * 0x%08x, stride: 0x%08x, Cursor fb addr: 0x%08llx\n",
@@ -188,7 +194,7 @@ static void gxmicro_cursor_move(struct gxmicro_dc_dev *gdev,
 	uint32_t cur_loc;
 
 	cur_ctrl = CURSOR_HOTSPOT(hotx, hoty);
-	cur_loc = CURSOR_LOCATOIN(x, y);	/* TODO: 可能需要修改为 (x + hotx, y + hoty), 实际 location (x - hotx, y - hoty), hotspot (x, y) 位置 */
+	cur_loc = CURSOR_LOCATOIN(x, y);	/* Reserved: 可能需要修改为 (x + hotx, y + hoty), 实际 location (x - hotx, y - hoty), hotspot (x, y) 位置 */
 
 	gxmicro_write(gdev, DC_CURSOR_LOCATION, cur_loc);
 
@@ -323,7 +329,7 @@ static int gxmicro_cursor_plane_init(struct gxmicro_dc_dev *gdev)
 	return 0;
 }
 
-/* ============================== Crtc ============================== */
+/* ****************************** Crtc ****************************** */
 
 static void gxmicro_crtc_dpms(struct drm_crtc *crtc, int mode)
 {
@@ -424,6 +430,7 @@ static int gxmicro_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode 
 		return -EINVAL;
 	}
 
+	/* Reserved: 根据 hvsync polarity 配置, 0: positive, 1: negtive */
 	/* HDisplay & HSync */
 	hdisplay = HVDISPLAY(mode->hdisplay, mode->htotal);
 	hsync = HVSYNC(mode->hsync_start, mode->hsync_end);
@@ -434,7 +441,7 @@ static int gxmicro_crtc_mode_set(struct drm_crtc *crtc, struct drm_display_mode 
 
 	gxmicro_write(gdev, DC_CTRL, gdev->dctrl);
 
-	gxmicro_write(gdev, DC_STRIDE, fb->pitches[0]);		/* TODO: 切换分辨率可能 改变, fb->pitches[0] 无改变, hdisplay(mode->hdisplay) * bpc(fb->format->cpp[0]) */
+	gxmicro_write(gdev, DC_STRIDE, fb->pitches[0]);		/* Reserved: 切换分辨率可能 改变, fb->pitches[0] 无改变, hdisplay(mode->hdisplay) * bpc(fb->format->cpp[0]) */
 	gxmicro_write(gdev, DC_ORIGIN, 0);
 
 	gxmicro_write(gdev, DC_PANEL_CONF, PANEL_CONF);
@@ -542,7 +549,7 @@ static int gxmicro_crtc_init(struct gxmicro_dc_dev *gdev)
 	return 0;
 }
 
-/* ============================== Encoder ============================== */
+/* ****************************** Encoder ****************************** */
 
 #define I2C_SIL9134_ADDR		0x39	/* Sil9134 addr地址, 0x39 << 1 = 0x72  */
 
@@ -688,7 +695,7 @@ static int gxmicro_encoder_init(struct gxmicro_dc_dev *gdev)
 	return 0;
 }
 
-/* ============================== Connector ============================== */
+/* ****************************** Connector ****************************** */
 
 #if 1
 /* drm_edid_load.c */
@@ -1028,7 +1035,7 @@ static int gxmicro_connector_init(struct gxmicro_dc_dev *gdev)
 	return 0;
 }
 
-/* ============================== DRM Init & Fini ============================== */
+/* ****************************** DRM Init & Fini ****************************** */
 
 int gxmicro_kms_init(struct gxmicro_dc_dev *gdev)
 {

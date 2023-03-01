@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /*
- * GXMicro Display Controller Device
+ * GXMicro Display Controller
  *
  * Copyright (C) 2022 GXMicro (ShangHai) Corp.
  *
@@ -21,13 +21,13 @@
 #include <linux/bits.h>
 #include <linux/sizes.h>
 
-/* ============================== DDR ============================== */
+/* ****************************** DDR ****************************** */
 
 /* DDR 起始地址, FrameBuffer 和 Cursor 使用, 用于设置 JPEG 寄存器 */
 #define FB_CUR_BASE			0x80000000
 #define FB_CUR_OFFSET(offset)		(FB_CUR_BASE + offset)
 
-/* ============================== PMU Controller ============================== */
+/* ****************************** PMU Controller ****************************** */
 
 #define PMU_BASE			0x006b0000
 
@@ -45,7 +45,7 @@
 #define RCU_GMAC			BIT(4)
 #define RCU_DDR				BIT(0)
 
-/* ============================== GPIO A Controller ============================== */
+/* ****************************** GPIO A Controller ****************************** */
 
 #define GPIOA_BASE			0x00640000
 
@@ -69,14 +69,14 @@
 #define GPIOA_EXT_PORTC			GPIOA_OFFSET(0x58)
 #define GPIOA_EXT_PORTD			GPIOA_OFFSET(0x5c)
 
-/* ============================== Display Controller ============================== */
+/* ****************************** Display Controller ****************************** */
 
 /*
- * DisplayController
+ * Display Controller
  * 	1. FPGA提供说明: 寄存器只有一帧结束后才可正常读取, 否则读取不准确现象
  * 	2. 尽量减少 "读取 --> 配置 "操作流程
  *	3. 使用驱动维护需要读的寄存器
- * 官方提供 demo 中, 设置后将 Reset 置位, 再使能 DisplayController
+ * 官方提供 demo 中, 设置后将 Reset 置位, 再使能 Display Controller
  */
 #define DC_BASE				0x01d20000
 
@@ -201,7 +201,7 @@
 #define CURSOR_X(x)			((x) & 0x7ff)
 #define CURSOR_LOCATOIN(x, y)		(CURSOR_Y(y) | CURSOR_X(x))
 
-/* ============================== JPEG Controller ============================== */
+/* ****************************** JPEG Controller ****************************** */
 
 #define JPEG_BASE			0x00670000
 
@@ -255,8 +255,6 @@
 #define JPEG_EOF			BIT(0)
 #define JPEG_BS_OVERALOW		BIT(8)
 
-/* ============================== GXMicro DC Device ============================== */
-
 struct gxmicro_dc_dev {
 	struct drm_device *dev;
 	struct drm_plane *primary;
@@ -289,9 +287,6 @@ static inline void gxmicro_write(struct gxmicro_dc_dev *gdev, uint32_t reg, uint
 
 int gxmicro_i2c_init(struct gxmicro_dc_dev *gdev);
 void gxmicro_i2c_fini(struct gxmicro_dc_dev *gdev);
-
-int gxmicro_drm_init(struct gxmicro_dc_dev *gdev);
-void gxmicro_drm_fini(struct gxmicro_dc_dev *gdev);
 
 int gxmicro_ttm_init(struct gxmicro_dc_dev *gdev);
 void gxmicro_ttm_fini(struct gxmicro_dc_dev *gdev);
